@@ -10,14 +10,19 @@ const contactContent = "Scelerisque eleifend donec pretium vulputate sapien. Rho
 let posts = [];
 
 const app = express();
+const _ = require('lodash');
+
 
 app.set('view engine', 'ejs');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 app.get("/", function(req, res){
-  res.render("home", {homeStartingContent: homeStartingContent});
-  console.log(posts);
+
+  res.render("home", {
+    homeStartingContent: homeStartingContent,
+    posts: posts});
+    
 });
 
 app.get("/about", function(req, res){
@@ -35,8 +40,10 @@ app.get("/compose", function(req, res){
 
 app.post("/compose", function(req, res){
   
-  const post = {postTitle: req.body.postTitle,
-                postBody: req.body.postBody};
+  const post = {
+    postTitle: req.body.postTitle,
+    postBody: req.body.postBody
+  };
   posts.push(post);
   res.redirect("/");
   
@@ -44,6 +51,23 @@ app.post("/compose", function(req, res){
   
 })
 
+app.get("/posts/:postTitle", function(req, res){
+
+
+  console.log(req.params.postTitle);
+  const request = _.lowerCase(req.params.postTitle);
+
+
+  posts.forEach( (post) => {
+    const title = _.lowerCase(post.postTitle);
+    if(request === title){
+      console.log("Match found!");
+      res.render("post", {title: post.postTitle, body:post.postBody});
+    }
+  })
+
+
+})
 
 app.listen(3000, function() {
   console.log("Server started on port 3000");
